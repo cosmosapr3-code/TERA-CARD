@@ -1,0 +1,1778 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TERRACARD ONLINE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<style>
+:root{
+  --blue:#1768a8; --deep:#0a2a44; --sky1:#4da9ed; --sky2:#9edaff;
+  --ink:#0d2740; --line:#8fc3e8; --red:#e95b63; --green:#45bd78;
+  --yellow:#f5d84e; --white:#ffffff;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; font-family:"Inter",system-ui,-apple-system,"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif;
+  color:#eaf6ff; background:#0b1d2e;
+  background-image:
+    radial-gradient(ellipse at 12% 18%,#ffffff33 0 1.4%,transparent 6%),
+    radial-gradient(ellipse at 82% 12%,#ffffff2b 0 1.2%,transparent 7%),
+    radial-gradient(ellipse at 70% 80%,#ffffff26 0 1.2%,transparent 8%),
+    linear-gradient(180deg,#0e2f4d 0%,#11476e 38%,#0c2439 100%);
+  background-attachment:fixed;
+  min-height:100vh;
+}
+.hidden{display:none!important}
+button{font-family:inherit}
+h1,h2,h3{margin:0;letter-spacing:.02em}
+.wrap{max-width:1560px;margin:0 auto;padding:clamp(10px,1.6vw,22px)}
+
+/* ---------- LOBBY ---------- */
+.lobby{max-width:960px;margin:0 auto;padding:clamp(14px,3vw,40px) 0}
+.brand{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.brand .cube{
+  width:54px;height:54px;border-radius:12px;display:grid;place-items:center;font-size:28px;
+  background:linear-gradient(145deg,#ffffff,#bcdcf3 55%,#7fb4d6);
+  box-shadow:inset 2px 2px 0 #fff,inset -4px -5px 0 #9dbdd3,0 6px 0 #2e6f92,0 9px 14px #00131f88;
+}
+.brand h1{
+  font-size:clamp(26px,4.6vw,44px);font-weight:900;letter-spacing:.04em;
+  background:linear-gradient(180deg,#fff,#bfe6ff 70%,#7fc4f0);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 3px 0 #0a2a44) drop-shadow(0 6px 10px #0008);
+}
+.brand .sub{font-size:13px;color:#9fcbe8;letter-spacing:.16em;font-weight:700}
+.panel{
+  background:linear-gradient(160deg,#0f3a5b,#082135);
+  border:2px solid #2f7fab; border-radius:18px;
+  box-shadow:inset 0 2px 0 #ffffff26, 0 8px 0 #04263c, 0 14px 30px #0006;
+  padding:clamp(14px,2.2vw,24px);
+}
+.panel + .panel{margin-top:14px}
+.panel h2{font-size:15px;letter-spacing:.1em;color:#9fd6f8;margin-bottom:12px;text-transform:uppercase}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.field label{font-size:12px;color:#9fcbe8;font-weight:700;letter-spacing:.08em}
+input[type=text]{
+  width:100%;padding:12px 14px;border-radius:12px;border:2px solid #2f7fab;
+  background:#061a2b; color:#eaf6ff; font-size:16px; font-weight:700; letter-spacing:.06em;
+  outline:none;
+}
+input[type=text]:focus{border-color:#7fd0ff;box-shadow:0 0 0 3px #7fd0ff33}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row.tight{gap:8px}
+.btn{
+  appearance:none;border:0;cursor:pointer;border-radius:12px;padding:13px 20px;
+  font-size:15px;font-weight:900;letter-spacing:.04em;color:#fff;
+  background:linear-gradient(180deg,#2f9be0,#1768a8);
+  box-shadow:inset 0 2px 0 #ffffff55,0 5px 0 #0d4467,0 8px 14px #00151f66;
+  transition:transform .08s,filter .12s;
+}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:translateY(3px);box-shadow:inset 0 2px 0 #ffffff55,0 2px 0 #0d4467}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.4)}
+.btn.ghost{background:linear-gradient(180deg,#3d5f79,#1e3a4e);box-shadow:inset 0 2px 0 #ffffff33,0 5px 0 #0d2233}
+.btn.warm{background:linear-gradient(180deg,#f0a03c,#c2661a);box-shadow:inset 0 2px 0 #ffffff55,0 5px 0 #8a4510}
+.btn.wide{width:100%;justify-content:center}
+.iconpicker{display:flex;flex-wrap:wrap;gap:6px}
+.icon-btn{
+  width:44px;height:44px;border-radius:11px;border:2px solid #2f7fab;background:#0a2439;
+  font-size:22px;cursor:pointer;display:grid;place-items:center;transition:.12s;
+}
+.icon-btn:hover{transform:translateY(-2px);border-color:#7fd0ff}
+.icon-btn.on{background:linear-gradient(180deg,#2f9be0,#1768a8);border-color:#bfe9ff;box-shadow:0 0 0 3px #7fd0ff44}
+.status{font-size:12.5px;font-weight:700;color:#9fcbe8;min-height:18px;line-height:1.5}
+.status.ok{color:#6ee7a8}
+.status.err{color:#ff9a9a}
+.status.wait{color:#ffd36e}
+#codeBox{text-align:center}
+#roomCodeText{
+  font-size:clamp(30px,7vw,54px);font-weight:900;letter-spacing:.28em;
+  color:#ffe9a8;text-shadow:0 3px 0 #7a4b00,0 0 22px #ffbe3f66;padding-left:.28em;
+}
+.joined{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.joined li{
+  display:flex;align-items:center;gap:10px;background:#0a2439;border:1px solid #2f7fab;
+  border-radius:10px;padding:9px 12px;font-size:14px;font-weight:700;
+}
+.tag{font-size:10.5px;font-weight:900;letter-spacing:.08em;padding:3px 8px;border-radius:999px;background:#1a4f72;color:#9fd6f8}
+.tag.you{background:#155e3a;color:#7cf0ae}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.modecard{
+  text-align:left;background:#0a2439;border:2px solid #2f7fab;border-radius:14px;padding:14px;cursor:pointer;color:#eaf6ff;
+  transition:.12s;
+}
+.modecard:hover{transform:translateY(-3px);border-color:#7fd0ff;box-shadow:0 8px 18px #0006}
+.modecard b{display:block;font-size:15px;margin-bottom:4px}
+.modecard span{font-size:12px;color:#9fcbe8;line-height:1.5}
+.hint{font-size:12px;color:#8db8d4;line-height:1.7}
+
+/* ---------- GAME ---------- */
+.topbar{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-bottom:12px}
+.pill{
+  display:flex;align-items:center;gap:9px;background:linear-gradient(160deg,#0d3552,#082034);
+  border:2px solid #2c7ba8;border-radius:13px;padding:9px 13px;font-weight:800;font-size:13px;
+  box-shadow:inset 0 2px 0 #ffffff26,0 5px 0 #04263c;
+}
+.pill .dot{width:9px;height:9px;border-radius:50%;background:#ffb35c;box-shadow:0 0 8px #ffb35c}
+.pill.online .dot{background:#4be08a;box-shadow:0 0 10px #4be08a}
+.pill.off .dot{background:#ff6a6a;box-shadow:0 0 10px #ff6a6a}
+.roundBadge{
+  background:linear-gradient(180deg,#1a527f,#082b4a);border:2px solid #5bbcf7;border-radius:14px;
+  padding:9px 22px;font-weight:900;font-size:15px;text-align:center;
+  box-shadow:inset 0 2px #ffffff55,0 5px 0 #377fa8;
+}
+.roundBadge small{display:block;font-size:11px;color:#a6d9f7;letter-spacing:.08em;font-weight:800}
+.gameGrid{display:grid;grid-template-columns:minmax(0,1fr) 336px;gap:12px;align-items:start}
+.boardCard{
+  position:relative;background:linear-gradient(160deg,#0d3552,#06192a);
+  border:2px solid #2c7ba8;border-radius:16px;padding:10px;
+  box-shadow:inset 0 2px 0 #ffffff26,0 8px 0 #04263c,0 14px 26px #0007;
+}
+.board{
+  position:relative;display:grid;grid-template-columns:repeat(11,1fr);grid-template-rows:repeat(11,1fr);
+  aspect-ratio:1/1;width:100%;gap:1px;border-radius:10px;overflow:hidden;
+  background:#04121e;
+  filter:drop-shadow(0 14px 10px #00000066);
+}
+.cell{
+  position:relative;border:0;padding:0;background:#ffffff;cursor:pointer;
+  display:grid;place-items:center;transition:filter .1s,transform .1s;
+}
+.cell.wall{background:linear-gradient(160deg,#0a1c2b,#04101a);cursor:default;border:1px solid #12324a}
+.cell.t0{--qc:#59b4ff}.cell.t1{--qc:#ff8087}.cell.t2{--qc:#6ee7a8}.cell.t3{--qc:#ffd166}
+.cell.edge-top{box-shadow:inset 0 3px 0 var(--qc)}
+.cell.edge-bottom{box-shadow:inset 0 -3px 0 var(--qc)}
+.cell.edge-left{box-shadow:inset 3px 0 0 var(--qc)}
+.cell.edge-right{box-shadow:inset -3px 0 0 var(--qc)}
+.cell.wall{border:1px solid #14364c}
+.cell.broken{background:linear-gradient(160deg,#20303e,#0c1a26)!important;box-shadow:inset 0 0 10px #000}
+.cell.broken:after{content:"";position:absolute;inset:22%;background:radial-gradient(circle,#00000066,transparent 70%)}
+.cell.moveable:after{
+  content:"";position:absolute;inset:26%;border-radius:50%;
+  background:#2f9be0;opacity:.55;box-shadow:0 0 8px #7fd0ff;
+}
+.cell.targetable:after{
+  content:"";position:absolute;inset:18%;border:3px dashed #ffe08a;border-radius:6px;
+  animation:pulse 1s infinite alternate;
+}
+@keyframes pulse{from{opacity:.45}to{opacity:1}}
+.cell.aim{cursor:crosshair}
+.cell:hover{filter:brightness(1.14)}
+.dura{font-size:clamp(7px,.72vw,10px);font-weight:900;color:#0d2740;opacity:.55}
+.pawnLayer{position:absolute;inset:0;pointer-events:none;z-index:5}
+.pawn{
+  position:absolute;width:calc(100%/11);height:calc(100%/11);
+  display:grid;place-items:center;transition:left .26s cubic-bezier(.3,.9,.3,1),top .26s cubic-bezier(.3,.9,.3,1);
+  font-size:clamp(14px,2.1vw,30px);
+  filter:drop-shadow(2px 4px 2px #00101899);
+}
+.pawn .body{
+  position:relative;width:78%;height:78%;border-radius:9px;display:grid;place-items:center;
+  background:radial-gradient(circle at 35% 28%,#ffffffdd,#ffffff44 45%,transparent 70%);
+}
+.pawn.me .body{box-shadow:0 0 0 2.5px #8fe1ff,0 4px 0 #0a2a4400,0 0 16px #7fd0ffcc}
+.pawn.foe .body{box-shadow:0 0 0 2.5px #ffb0b4,0 0 16px #ff8a90aa}
+.pawn .hpm{position:absolute;bottom:-3px;left:8%;right:8%;height:5px;border-radius:3px;background:#00141f;overflow:hidden;box-shadow:0 0 0 1px #ffffff55}
+.pawn .hpm i{display:block;height:100%;background:linear-gradient(90deg,#4be08a,#a8f0c0)}
+.pawn.foe .hpm i{background:linear-gradient(90deg,#ff7a83,#ffb3a8)}
+.projLayer{position:absolute;inset:0;pointer-events:none;z-index:8;overflow:hidden}
+.proj{
+  position:absolute;width:calc(100%/11);height:calc(100%/11);display:grid;place-items:center;
+  font-size:clamp(14px,1.9vw,26px);transition:left 1.15s cubic-bezier(.2,.7,.3,1),top 1.15s cubic-bezier(.2,.7,.3,1),opacity .2s;
+  filter:drop-shadow(0 0 6px #fff) drop-shadow(0 0 14px #ff9a3c);
+}
+.boardWrap{position:relative}
+
+.side{display:flex;flex-direction:column;gap:12px}
+.sideCard{
+  background:linear-gradient(160deg,#0d3552,#06192a);border:2px solid #2c7ba8;border-radius:15px;
+  padding:12px;box-shadow:inset 0 2px 0 #ffffff26,0 6px 0 #04263c;
+}
+.sideCard h3{font-size:12px;letter-spacing:.12em;color:#9fd6f8;margin-bottom:9px;text-transform:uppercase}
+.plist{display:flex;flex-direction:column;gap:8px}
+.pcard{
+  display:flex;align-items:center;gap:10px;background:#08202f;border:2px solid #1e5b7d;border-radius:11px;
+  padding:8px 10px;
+}
+.pcard.active{border-color:#ffd166;box-shadow:0 0 0 2px #ffd16644,0 0 16px #ffd16633}
+.pcard.dead{opacity:.4;filter:grayscale(1)}
+.pcard .ic{font-size:22px;width:30px;text-align:center}
+.pcard .nm{font-size:13px;font-weight:900;line-height:1.2}
+.pcard .meta{font-size:11px;color:#8db8d4;font-weight:700;letter-spacing:.03em}
+.hpbar{height:7px;border-radius:4px;background:#00141f;overflow:hidden;margin-top:4px;box-shadow:0 0 0 1px #ffffff22}
+.hpbar i{display:block;height:100%;background:linear-gradient(90deg,#4be08a,#c8f7d9);transition:width .25s}
+.hpbar.low i{background:linear-gradient(90deg,#ff5a64,#ffb0a8)}
+.hand{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:8px}
+.hcard{
+  position:relative;text-align:left;border:2px solid #2c7ba8;border-radius:12px;padding:9px;
+  background:linear-gradient(165deg,#12455f,#082334);color:#eaf6ff;cursor:pointer;
+  box-shadow:inset 0 2px 0 #ffffff1f,0 4px 0 #04263c;transition:transform .1s,box-shadow .12s;
+  display:flex;flex-direction:column;gap:3px;min-height:96px;
+}
+.hcard:hover{transform:translateY(-3px);box-shadow:inset 0 2px 0 #ffffff2f,0 7px 0 #04263c,0 10px 18px #0006}
+.hcard.sel{border-color:#ffd166;box-shadow:0 0 0 2px #ffd16666,0 6px 0 #6b4d00}
+.hcard.poor{opacity:.48}
+.hcard .cst{
+  position:absolute;top:-7px;right:-7px;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
+  font-weight:900;font-size:13px;color:#08131f;background:linear-gradient(180deg,#ffe9a8,#f0b93c);
+  box-shadow:0 2px 0 #8a6510,0 0 0 2px #061a2b;
+}
+.hcard .cn{font-size:12.5px;font-weight:900;line-height:1.25;padding-right:16px}
+.hcard .cd{font-size:10.5px;line-height:1.45;color:#a8cde3}
+.hcard .ic{font-size:19px}
+.logbox{max-height:210px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;font-size:11.5px;line-height:1.5}
+.logbox .l{padding:5px 8px;border-radius:7px;background:#07202f;border-left:3px solid #2c7ba8;color:#b6d7ea}
+.logbox .l.hit{border-color:#ff7a83;color:#ffd0d2}
+.logbox .l.heal{border-color:#4be08a;color:#c3f7d8}
+.logbox .l.warn{border-color:#ffb35c;color:#ffdfae}
+.logbox .l.death{border-color:#ff4d5e;color:#ffb3b8;font-weight:800}
+.logbox .l.win{border-color:#ffd166;color:#ffe9a8;font-weight:800}
+.logbox .l.buff{border-color:#8fd3ff;color:#cdeaff}
+.logbox .l.dodge{border-color:#a78bfa;color:#ddd0ff}
+.logbox .l.block{border-color:#4ec9c9;color:#c2f2f2}
+.logbox .l.revive{border-color:#c084fc;color:#e9d5ff;font-weight:800}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.actions .btn{padding:12px 10px;font-size:13.5px}
+.turnInfo{font-size:13px;font-weight:800;color:#cdeaff;line-height:1.6;min-height:40px}
+.turnInfo b{color:#ffe08a}
+.energyRow{display:flex;align-items:center;gap:8px;font-weight:900;color:#ffe08a;font-size:14px}
+.pips{display:flex;gap:3px;flex-wrap:wrap}
+.pip{width:11px;height:11px;border-radius:3px;background:#0a2439;box-shadow:inset 0 0 0 1px #2c7ba8}
+.pip.on{background:linear-gradient(180deg,#ffe9a8,#e8a92c);box-shadow:0 0 8px #ffd16688}
+.seatTag{font-size:10px;font-weight:900;padding:2px 6px;border-radius:999px;background:#123f5c;color:#9fd6f8}
+.hintbar{font-size:11.5px;color:#8db8d4;line-height:1.6;margin-top:8px}
+#toast{
+  position:fixed;left:50%;bottom:26px;transform:translate(-50%,26px);z-index:999;
+  background:#0b2a40f2;border:2px solid #ffd166;color:#ffe9a8;font-weight:800;font-size:14px;
+  padding:12px 20px;border-radius:12px;box-shadow:0 10px 30px #0009;opacity:0;pointer-events:none;
+  transition:opacity .2s,transform .2s;max-width:90vw;text-align:center;
+}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+.modal{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;background:#02101bdd;padding:18px}
+.modal .box{
+  width:min(430px,100%);text-align:center;padding:26px 20px;border-radius:20px;
+  background:linear-gradient(160deg,#123d60,#071f35);border:3px solid #ffd166;
+  box-shadow:0 20px 60px #0009;
+}
+.modal .big{font-size:54px;line-height:1}
+.modal h2{font-size:28px;margin:8px 0 4px;color:#ffe08a}
+@media(max-width:1000px){
+  .gameGrid{grid-template-columns:1fr}
+  .side{order:2}
+  .sideCard .logbox{max-height:150px}
+}
+@media(max-width:560px){
+  .wrap{padding:7px}
+  .topbar{grid-template-columns:1fr auto;gap:6px}
+  .roundBadge{grid-column:1/-1;padding:6px;font-size:13px}
+  .pill{padding:6px 9px;font-size:11px}
+  .hand{grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:6px}
+  .hcard{min-height:88px;padding:7px}
+  .hcard .cd{font-size:9.5px}
+  .boardCard{padding:5px}
+}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+
+<!-- ================= LOBBY ================= -->
+<div id="lobby">
+  <div class="wrap lobby">
+    <div class="brand">
+      <div class="cube">🌍</div>
+      <div>
+        <h1>TERRACARD ONLINE</h1>
+        <div class="sub">REAL-TIME CARD BATTLE</div>
+      </div>
+    </div>
+    <p class="hint" style="margin:0 0 16px">5×5の四隅フィールドで戦うカードバトル。地面を塗り、壊し、飛んでくる弾を移動でかわす。サーバー不要のP2Pオンライン対戦。</p>
+
+    <div class="panel">
+      <h2>プレイヤー設定</h2>
+      <div class="field">
+        <label>なまえ</label>
+        <input id="nameInput" type="text" maxlength="12" placeholder="プレイヤー" value="プレイヤー">
+      </div>
+      <div class="field">
+        <label>アイコン</label>
+        <div class="iconpicker" id="iconPicker"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>あそびかた</h2>
+      <div class="modes">
+        <button class="modecard" id="createRoom">
+          <b>🌐 ルームを作る</b>
+          <span>5文字のコードが発行されます。友だちに送って対戦。</span>
+        </button>
+        <button class="modecard" id="joinPanelBtn" style="cursor:default">
+          <b>🔑 コードで参加</b>
+          <span>相手から受け取ったコードを入れて参加します。</span>
+        </button>
+        <button class="modecard" id="cpuBtn">
+          <b>🤖 CPUと対戦</b>
+          <span>ひとりで練習。ルールの確認に。</span>
+        </button>
+        <button class="modecard" id="localBtn">
+          <b>👥 1台で2人対戦</b>
+          <span>同じ画面で交互に操作するローカル対戦。</span>
+        </button>
+      </div>
+
+      <div id="joinPanel" style="margin-top:14px">
+        <div class="field">
+          <label>ルームコード</label>
+          <div class="row tight">
+            <input id="joinCode" type="text" maxlength="8" placeholder="ABC12" style="flex:1;min-width:140px;text-transform:uppercase">
+            <button class="btn" id="joinRoom">参加する</button>
+          </div>
+        </div>
+        <div class="status" id="netStatus">未接続</div>
+      </div>
+
+      <div id="hostPanel" class="hidden" style="margin-top:14px">
+        <div id="codeBox">
+          <div class="status" style="letter-spacing:.14em">このコードを相手に送ってください</div>
+          <div id="roomCodeText">-----</div>
+          <button class="btn ghost" id="copyCode" style="margin-top:6px">コードをコピー</button>
+        </div>
+        <ul class="joined" id="joinedList"></ul>
+        <button class="btn wide warm" id="startOnline" style="margin-top:12px" disabled>対戦相手を待っています…</button>
+      </div>
+    </div>
+
+    <p class="hint" style="margin-top:14px">
+      ※ ルームは WebRTC（PeerJS）で直接つながります。同じWi-Fiでもモバイル回線でもOK。
+      ホストが全カードの抽選と進行を管理し、あなたの手札はあなたにだけ送られます。
+    </p>
+  </div>
+</div>
+
+<!-- ================= GAME ================= -->
+<div id="game" class="hidden">
+  <div class="wrap">
+    <div class="topbar">
+      <div class="pill" id="connPill"><span class="dot"></span><span id="connText">オフライン</span></div>
+      <div class="roundBadge"><small>ROUND</small><span id="roundNum">1</span></div>
+      <div class="pill" style="justify-self:end;cursor:pointer" id="exitBtn"><span>🚪</span><span>退出</span></div>
+    </div>
+
+    <div class="gameGrid">
+      <div>
+        <div class="boardCard">
+          <div class="boardWrap">
+            <div class="board" id="board"></div>
+            <div class="pawnLayer" id="pawnLayer"></div>
+            <div class="projLayer" id="projLayer"></div>
+          </div>
+          <div class="hintbar" id="boardHint">自分のフィールド（色枠の5×5）の中だけ移動できます。移動はいつでも可能（クールダウンあり）。</div>
+        </div>
+
+        <div class="sideCard" style="margin-top:12px">
+          <h3>手札 <span id="handCount" style="color:#ffd166"></span></h3>
+          <div class="hand" id="hand"></div>
+        </div>
+      </div>
+
+      <div class="side">
+        <div class="sideCard">
+          <h3>手番</h3>
+          <div class="turnInfo" id="turnInfo">―</div>
+          <div class="status" id="gameStatus" style="font-size:11px"></div>
+          <div class="energyRow" style="margin-top:8px">
+            <span>◆ <span id="energyNum">0</span></span>
+            <span class="pips" id="pips"></span>
+          </div>
+          <div class="actions" style="margin-top:12px">
+            <button class="btn ghost" id="drawBtn">カードを引く</button>
+            <button class="btn warm" id="endTurnBtn">ターン終了</button>
+          </div>
+          <div class="hintbar" id="actionHint"></div>
+        </div>
+
+        <div class="sideCard">
+          <h3>プレイヤー</h3>
+          <div class="plist" id="plist"></div>
+        </div>
+
+        <div class="sideCard">
+          <h3>ログ</h3>
+          <div class="logbox" id="logbox"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="resultModal" class="modal hidden"></div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+
+/* TERRACARD ONLINE - rules engine (pure logic, no DOM) */
+(function (root) {
+'use strict';
+
+var W = 11;
+var MOVE_CD = 1100;
+var DEATH_ROUND = 15;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function ri(rng,n){return Math.floor(rng()*n);}
+function pick(rng,arr){return arr[ri(rng,arr.length)];}
+function fieldOf(x,y){if(x===5||y===5)return -1;return (y<5?0:2)+(x<5?0:1);}
+function cellIndex(x,y){return y*W+x;}
+var CORNERS=[[2,2],[8,2],[2,8],[8,8]];
+var RARITY_W={'白':10,'緑':12,'青':9,'赤':5,'紫':3,'黄':2,'金':0.12,'黒':0.06};
+
+var CARDS=[
+{id:'fire',name:'ファイアボルト',cost:2,rarity:'白',type:'attack',dmg:2,icon:'🔥',color:'#e0563f',desc:'指定した相手に2ダメージ。弾が飛んでいる間に移動すれば回避できる。'},
+{id:'beam',name:'ビーム弾',cost:2,rarity:'紫',type:'attack',dmg:5,icon:'✨',color:'#9b62ff',desc:'ランダムな相手に5ダメージ。弾が飛んでいる間に移動すれば回避できる。'},
+{id:'missile',name:'ミサイル',cost:2,rarity:'紫',type:'attack',dmg:10,icon:'🚀',color:'#8a5cf6',desc:'ランダムな相手に10ダメージ。移動すれば回避できるが、着弾点の地面の耐久が2減る。'},
+{id:'glox',name:'グロックス',cost:5,rarity:'黒',type:'glox',icon:'🔫',color:'#3b3b46',desc:'1〜10を抽選し、その数だけランダムな相手にダメージ。回避不可の直撃。'},
+{id:'heal',name:'リカバリー',cost:2,rarity:'白',type:'heal',amount:2,icon:'💖',color:'#e86fa4',desc:'自分のHPを2回復する。'},
+{id:'cola',name:'コーラ',cost:0,rarity:'白',type:'heal',amount:5,icon:'🥤',color:'#c94f4f',desc:'自分のHPを5回復する。'},
+{id:'crash',name:'クラッシュ',cost:2,rarity:'白',type:'break',icon:'💥',color:'#b06a2c',desc:'指定したマスを破壊する。'},
+{id:'repair',name:'リペア',cost:2,rarity:'青',type:'repair',icon:'🔧',color:'#3f9ea8',desc:'自分のフィールドの壊れたマス1つを耐久3で復活させる。'},
+{id:'shield',name:'シールド',cost:2,rarity:'青',type:'shield',icon:'🛡️',color:'#3f8fd0',desc:'次のダメージを軽減。値は「2＋自分のフィールドの青マス数−赤マス数×2」。'},
+{id:'dash',name:'ダッシュ',cost:1,rarity:'白',type:'dash',icon:'💨',color:'#5aa9c9',desc:'次に使う移動の距離を+3する。'},
+{id:'charge',name:'エネルギー吸収',cost:0,rarity:'白',type:'charge',icon:'⚡',color:'#d8a11f',desc:'エネルギーを+2する。'},
+{id:'assault',name:'アサルトライフル',cost:1,rarity:'白',type:'power',amount:3,icon:'🔫',color:'#4a6b8a',desc:'自分の攻撃力を+3する（この試合中有効）。'},
+{id:'wave',name:'グリーンウェーブ',cost:2,rarity:'緑',type:'wave',icon:'🌿',color:'#45bd78',desc:'自分のフィールドの白い地面をすべて緑にする。'},
+{id:'sukinukko-green',name:'好きぬっこ（緑）',cost:0,rarity:'緑',type:'sukinukko',paintColor:'green',icon:'🐱',color:'#45bd78',desc:'自分のフィールドの白い地面をランダムに1マス緑にする。'},
+{id:'sukinukko-yellow',name:'好きぬっこ（黄）',cost:0,rarity:'緑',type:'sukinukko',paintColor:'yellow',icon:'🐱',color:'#f5d84e',desc:'自分のフィールドの白い地面をランダムに1マス黄色にする。'},
+{id:'sukinukko-blue',name:'好きぬっこ（青）',cost:0,rarity:'緑',type:'sukinukko',paintColor:'blue',icon:'🐱',color:'#459cf0',desc:'自分のフィールドの白い地面をランダムに1マス青にする。'},
+{id:'sukinukko-red',name:'好きぬっこ（赤）',cost:0,rarity:'緑',type:'sukinukko',paintColor:'red',icon:'🐱',color:'#e95b63',desc:'自分のフィールドの白い地面をランダムに1マス赤にする。'},
+{id:'paint-red',name:'赤色地面',cost:1,rarity:'緑',type:'paint',paintColor:'red',icon:'🟥',color:'#e95b63',desc:'指定した地面を赤にする。赤の上で手番を終えるとHP+1。'},
+{id:'paint-blue',name:'青色地面',cost:1,rarity:'緑',type:'paint',paintColor:'blue',icon:'🟦',color:'#459cf0',desc:'指定した地面を青にする。青はシールドの値を増やす。'},
+{id:'paint-green',name:'緑色地面',cost:1,rarity:'緑',type:'paint',paintColor:'green',icon:'🟩',color:'#45bd78',desc:'指定した地面を緑にする。緑の上から撃つとダメージ+1。'},
+{id:'paint-white',name:'白色地面',cost:1,rarity:'青',type:'paint',paintColor:'white',icon:'⬜',color:'#dbe7f2',desc:'指定した地面を白（通常）に戻す。'},
+{id:'umbrella',name:'傘',cost:0,rarity:'青',type:'umbrella',icon:'☂️',color:'#b5476f',desc:'手札にある間、飛んでくる攻撃を無効化する。3回防ぐと消滅。'},
+{id:'snow',name:'島雪',cost:2,rarity:'青',type:'snow',icon:'❄️',color:'#62c5ff',desc:'3ターンの間、各ターン終了時に全員のエネルギー-1。0なら1ダメージ。傘で防げる。'},
+{id:'reverse',name:'逆戻り',cost:0,rarity:'紫',type:'reverse',icon:'🔄',color:'#7a5ac7',desc:'手札にある間、HPが0になると自動発動。HP1で復活し、このカードは消費される。'},
+{id:'lucktrial',name:'運ゲー裁判',cost:0,rarity:'紫',type:'luck',icon:'⚖️',color:'#8b6f3e',desc:'1〜10を抽選（7は再抽選）。9ならランダムな相手に10ダメージ、1なら自分に10ダメージ、それ以外は何も起きない。'},
+{id:'breakall',name:'破壊破壊破壊',cost:2,rarity:'赤',type:'breakall',icon:'🦊',color:'#d1662f',desc:'全フィールドからランダムに5マス破壊する。プレイヤーの足元も対象。'},
+{id:'ussr',name:'ソ連',cost:3,rarity:'赤',type:'ussr',icon:'☭',color:'#d33b3b',desc:'手札にミサイルを1枚追加。赤い地面の上では攻撃力+3。手札に「逆戻り」があれば「ソビエト復活」も追加。'},
+{id:'sovietrevive',name:'ソビエト復活',cost:5,rarity:'金',type:'sovietrevive',icon:'☭',color:'#e0a92b',desc:'1〜10発のミサイルをコスト0で連続発射する。'},
+{id:'steve',name:'スティーブ',cost:3,rarity:'金',type:'steve',icon:'⛏️',color:'#4f9d5a',desc:'手札の「謎の頭」を消費して「グロックス」を手札に加える。'},
+{id:'mysteryhead',name:'謎の頭',cost:0,rarity:'白',type:'mystery',icon:'💀',color:'#8b8f96',desc:'持っていても何も起きない。スティーブで使うと「グロックス」に変わる。'}
+];
+var CARD_BY_ID={};
+CARDS.forEach(function(c){CARD_BY_ID[c.id]=c;});
+
+var MAX_HAND=8, MAX_ENERGY=10, MAX_HP=20;
+
+function log(G,text,kind){
+  G.status=text;
+  G.log.push({t:text,kind:kind||'info',round:G.round});
+  if(G.log.length>60)G.log.shift();
+}
+function emit(G,ev){G.events.push(ev); if(G.events.length>80)G.events.shift();}
+function drainEvents(G){var e=G.events; G.events=[]; return e;}
+
+function randomCard(G){
+  var pool=CARDS.map(function(c){return {c:c,w:RARITY_W[c.rarity]||10};});
+  var total=pool.reduce(function(n,x){return n+x.w;},0);
+  var roll=G.rng()*total, chosen=pool[pool.length-1].c;
+  for(var i=0;i<pool.length;i++){roll-=pool[i].w; if(roll<0){chosen=pool[i].c;break;}}
+  return {id:chosen.id, uid:Math.random().toString(36).slice(2,10), blocks:0};
+}
+function makeCard(id){
+  var c=CARD_BY_ID[id];
+  return {id:id, uid:Math.random().toString(36).slice(2,10), blocks:0, name:c?c.name:id};
+}
+function addToHand(G,p,card){
+  if(p.hand.length>=MAX_HAND){log(G,p.name+'の手札がいっぱいで、カードは捨てられた。');return false;}
+  p.hand.push(card); return true;
+}
+function alivePlayers(G){return G.players.filter(function(p){return p.alive&&p.hp>0;});}
+function playerAt(G,x,y){return G.players.find(function(p){return p.alive&&p.x===x&&p.y===y;});}
+function current(G){return G.players[G.turnOrder[G.turnPos]];}
+
+function damageBonus(G,p){
+  var b=p.attackPower||0;
+  var t=G.tiles[cellIndex(p.x,p.y)];
+  if(t&&t.color==='green')b+=1;
+  if(p.soviet&&t&&t.color==='red')b+=3;
+  return b;
+}
+
+function killPlayer(G,p,reason){
+  var r=p.hand.findIndex(function(c){return c.id==='reverse';});
+  if(r>=0){
+    p.hand.splice(r,1); p.hp=1;
+    log(G,p.name+'の「逆戻り」が発動！ HP1で踏みとどまった！','revive');
+    emit(G,{type:'revive',pid:p.id});
+    return false;
+  }
+  p.alive=false; p.hp=0;
+  log(G,'💀 '+p.name+'は脱落した。'+(reason||''),'death');
+  emit(G,{type:'death',pid:p.id,x:p.x,y:p.y});
+  return true;
+}
+
+function applyDamage(G,target,amount,opt){
+  opt=opt||{};
+  if(!target.alive)return {dmg:0,blocked:0};
+  var blocked=0;
+  if(!opt.ignoreShield&&target.shield>0){blocked=Math.min(amount,target.shield);target.shield=0;}
+  var dmg=Math.max(0,amount-blocked);
+  target.hp=Math.max(0,target.hp-dmg);
+  emit(G,{type:'hit',pid:target.id,dmg:dmg,blocked:blocked,ht:opt.kind||'fire'});
+  if(target.hp===0)killPlayer(G,target,opt.reason||'');
+  return {dmg:dmg,blocked:blocked};
+}
+
+function healPlayer(G,p,n){
+  var before=p.hp;
+  p.hp=Math.min(MAX_HP,p.hp+n);
+  return p.hp-before;
+}
+
+function checkWin(G){
+  if(G.gameOver)return;
+  var alive=alivePlayers(G);
+  if(alive.length<=1){
+    G.gameOver=true;
+    G.winner=alive.length?alive[0].id:null;
+    log(G,G.winner!==null?('🏆 '+alive[0].name+'の勝利！'):'引き分け。','win');
+    emit(G,{type:'gameover',winner:G.winner});
+  }
+}
+
+function startTurn(G,p){
+  p.draws=0; p.moveUsed=false; p.dashBonus=0;
+  p.energy=Math.min(MAX_ENERGY,p.energy+2);
+  log(G,p.name+'の手番。エネルギー+2（◆'+p.energy+'）。');
+}
+
+function createGame(opts){
+  opts=opts||{};
+  var seed=opts.seed||Date.now();
+  var rng=mulberry32(seed);
+  var pl=opts.players||[{name:'プレイヤー1'},{name:'プレイヤー2'}];
+  if(pl.length>4)pl=pl.slice(0,4);
+  var G={seed:seed,rng:rng,now:Date.now(),
+    players:pl.map(function(p,i){
+      return {id:i,name:p.name||('P'+(i+1)),icon:p.icon||'🙂',cpu:!!p.cpu,diff:p.diff||'normal',
+        x:CORNERS[i][0],y:CORNERS[i][1],hp:MAX_HP,maxHp:MAX_HP,shield:0,energy:0,attackPower:0,
+        dashBonus:0,moveUsed:false,draws:0,hand:[],alive:true,soviet:false};
+    }),
+    tiles:[],turnOrder:[],turnPos:0,round:1,gameOver:false,winner:null,snowTurns:0,
+    pending:[],events:[],log:[],status:'対戦開始！',moveRange:5};
+  for(var y=0;y<W;y++)for(var x=0;x<W;x++){
+    G.tiles.push(fieldOf(x,y)<0?{hp:0,color:'gap'}:{hp:3,color:'white'});
+  }
+  var ids=G.players.map(function(p){return p.id;});
+  for(var i=ids.length-1;i>0;i--){var j=ri(rng,i+1);var tmp=ids[i];ids[i]=ids[j];ids[j]=tmp;}
+  G.turnOrder=ids; G.turnPos=0;
+  G.players.forEach(function(p){for(var k=0;k<3;k++)p.hand.push(randomCard(G));});
+  startTurn(G,G.players[G.turnOrder[0]]);
+  log(G,'対戦開始！ 各プレイヤーは自陣の5×5フィールド内だけを移動できます。');
+  return G;
+}
+
+/* ---------- actions ---------- */
+
+function fail(msg){return {ok:false,msg:msg};}
+function ok(){return {ok:true};}
+
+function moveTo(G,pid,x,y){
+  if(G.gameOver)return fail('ゲーム終了');
+  var p=G.players[pid];
+  if(!p||!p.alive)return fail('脱落しています');
+  if(G.now-(p.lastMoveAt||0)<MOVE_CD)return fail('移動のクールダウン中です');
+  var f=fieldOf(p.x,p.y);
+  if(fieldOf(x,y)!==f)return fail('自分のフィールドから外へは移動できません');
+  var t=G.tiles[cellIndex(x,y)];
+  if(!t||t.hp<=0)return fail('足場が壊れているので移動できません');
+  if(playerAt(G,x,y))return fail('そのマスには誰かがいます');
+  var range=G.moveRange+(p.dashBonus||0);
+  var d=Math.abs(p.x-x)+Math.abs(p.y-y);
+  if(d>range)return fail('移動できるのは最大'+range+'マスです');
+  if(d===0)return fail('すでにそのマスにいます');
+  p.x=x; p.y=y; p.lastMoveAt=G.now; p.dashBonus=0;
+  emit(G,{type:'move',pid:pid,x:x,y:y});
+  return ok();
+}
+
+function drawAction(G,pid){
+  if(G.gameOver)return fail('ゲーム終了');
+  if(G.turnOrder[G.turnPos]!==pid)return fail('手番ではありません');
+  var p=G.players[pid];
+  if(p.hand.length>=MAX_HAND)return fail('手札がいっぱいです');
+  var cost=p.draws===0?0:1;
+  if(p.energy<cost)return fail('エネルギーが足りません');
+  p.energy-=cost; p.draws++;
+  var c=randomCard(G);
+  p.hand.push(c);
+  emit(G,{type:'draw',pid:pid,icon:CARD_BY_ID[c.id].icon});
+  log(G,p.name+'がカードを引いた（コスト'+cost+'）: '+CARD_BY_ID[c.id].name);
+  return ok();
+}
+
+function fieldColorCounts(G,pid){
+  var p=G.players[pid],f=fieldOf(p.x,p.y),blue=0,red=0;
+  for(var y=0;y<W;y++)for(var x=0;x<W;x++){
+    if(fieldOf(x,y)!==f)continue;
+    var t=G.tiles[cellIndex(x,y)]; if(!t||t.hp<=0)continue;
+    if(t.color==='blue')blue++;
+    if(t.color==='red')red++;
+  }
+  return {blue:blue,red:red};
+}
+
+function paintTile(G,x,y,color){
+  var t=G.tiles[cellIndex(x,y)];
+  if(!t||t.hp<=0)return false;
+  t.color=color; return true;
+}
+
+function launchAttack(G,attacker,target,kind,damage){
+  var t=G.tiles[cellIndex(target.x,target.y)];
+  var fromColor=t?t.color:'white';
+  G.pending.push({kind:kind,targetId:target.id,damage:damage,tx:target.x,ty:target.y,
+    fromX:attacker.x,fromY:attacker.y,resolveAt:G.now+1250,casterId:attacker.id});
+  var label=kind==='missile'?'🚀 ミサイル':kind==='beam'?'✨ ビーム弾':'🔥 ファイアボルト';
+  emit(G,{type:'launch',kind:kind,fromX:attacker.x,fromY:attacker.y,tx:target.x,ty:target.y,targetId:target.id});
+  log(G,label+'発射！ '+target.name+'を狙っている。移動すれば回避できる！','warn');
+  void fromColor;
+}
+
+function resolvePending(G,pr){
+  var target=G.players[pr.targetId];
+  if(!target||!target.alive)return;
+  if(target.x!==pr.tx||target.y!==pr.ty){
+    if(pr.kind==='missile'){
+      var t=G.tiles[cellIndex(pr.tx,pr.ty)];
+      if(t&&t.hp>0){t.hp=Math.max(0,t.hp-2);}
+      log(G,'ミサイルは外れた！ '+target.name+'は回避に成功（着弾点の耐久-2）。','dodge');
+    }else{
+      log(G,target.name+'は攻撃を回避した！','dodge');
+    }
+    emit(G,{type:'dodge',pid:target.id,x:pr.tx,y:pr.ty});
+    return;
+  }
+  var um=target.hand.findIndex(function(c){return c.id==='umbrella';});
+  if(um>=0){
+    var u=target.hand[um];
+    u.blocks=(u.blocks||0)+1;
+    if(u.blocks>=3){target.hand.splice(um,1);log(G,target.name+'の傘が攻撃を3回防いで消滅した。','block');}
+    else log(G,'☂️ '+target.name+'の傘が攻撃を無効化！（残り'+(3-u.blocks)+'回）','block');
+    emit(G,{type:'block',pid:target.id});
+    return;
+  }
+  var r=applyDamage(G,target,pr.damage,{kind:pr.kind,reason:''});
+  log(G,(pr.kind==='missile'?'🚀 ミサイル命中！ ':pr.kind==='beam'?'✨ ビーム弾命中！ ':'🔥 ファイアボルト命中！ ')+
+    target.name+'に'+r.dmg+'ダメージ'+(r.blocked?'（シールドで'+r.blocked+'軽減）':'')+'。','hit');
+  checkWin(G);
+}
+
+function advance(G,now){
+  if(!G)return false;
+  G.now=now;
+  var changed=false;
+  G.pending.sort(function(a,b){return a.resolveAt-b.resolveAt;});
+  while(G.pending.length&&G.pending[0].resolveAt<=now){
+    var pr=G.pending.shift();
+    resolvePending(G,pr);
+    changed=true;
+  }
+  return changed;
+}
+
+function playCard(G,pid,uid,tx,ty){
+  if(G.gameOver)return fail('ゲーム終了');
+  if(G.turnOrder[G.turnPos]!==pid)return fail('手番ではありません');
+  var p=G.players[pid];
+  if(!p||!p.alive)return fail('脱落しています');
+  var i=p.hand.findIndex(function(c){return c.uid===uid;});
+  if(i<0)return fail('そのカードは手札にありません');
+  var card=p.hand[i];
+  var def=CARD_BY_ID[card.id];
+  if(!def)return fail('不明なカード');
+  if(p.energy<def.cost)return fail('エネルギーが足りません');
+
+  var me=p, res;
+  var needTarget=['attack','paint','break','repair'];
+  if(needTarget.indexOf(def.type)>=0&&(typeof tx!=='number'||typeof ty!=='number')){
+    if(def.type!=='attack'||true)return fail('対象のマスを選んでください');
+  }
+
+  /* --- validation before paying cost --- */
+  if(def.type==='attack'){
+    var tg=playerAt(G,tx,ty);
+    if(!tg||tg.id===pid)return fail('攻撃できる相手を選んでください');
+  }
+  if(def.type==='break'){
+    if(fieldOf(tx,ty)<0)return fail('そのマスは破壊できません');
+    if(G.tiles[cellIndex(tx,ty)].hp<=0)return fail('すでに壊れています');
+  }
+  if(def.type==='paint'){
+    if(fieldOf(tx,ty)<0)return fail('そのマスは塗れません');
+    if(G.tiles[cellIndex(tx,ty)].hp<=0)return fail('壊れたマスは塗れません');
+  }
+  if(def.type==='repair'){
+    if(fieldOf(tx,ty)!==fieldOf(p.x,p.y))return fail('自分のフィールドのマスを選んでください');
+    if(G.tiles[cellIndex(tx,ty)].hp>0)return fail('そのマスは壊れていません');
+  }
+  if(def.type==='steve'){
+    if(!p.hand.some(function(c){return c.id==='mysteryhead';}))return fail('手札に「謎の頭」がありません');
+  }
+
+  p.energy-=def.cost;
+  p.hand.splice(i,1);
+  emit(G,{type:'play',pid:pid,card:def.id});
+
+  switch(def.type){
+    case 'attack':{
+      var target=playerAt(G,tx,ty);
+      var dmg=def.dmg+damageBonus(G,p);
+      launchAttack(G,p,target,def.id==='missile'?'missile':def.id==='beam'?'beam':'fire',dmg);
+      break;
+    }
+    case 'glox':{
+      var n=1+ri(G.rng,10);
+      var foes=G.players.filter(function(q){return q.alive&&q.id!==pid;});
+      if(!foes.length){log(G,'攻撃できる相手がいません。');break;}
+      var t2=pick(G.rng,foes);
+      var total=n+damageBonus(G,p);
+      var r2=applyDamage(G,t2,total,{ignoreShield:true,kind:'glox',reason:'グロックスに撃ち抜かれた。'});
+      log(G,'🔫 グロックス！ '+n+'を引き当て、'+t2.name+'に'+r2.dmg+'ダメージ（回避不可）。','hit');
+      checkWin(G);
+      break;
+    }
+    case 'heal':{
+      var h=healPlayer(G,p,def.amount);
+      log(G,p.name+'は'+def.amount+'回復した（HP'+p.hp+'/'+MAX_HP+'）。','heal');
+      void h;
+      break;
+    }
+    case 'break':{
+      G.tiles[cellIndex(tx,ty)].hp=0;
+      var victim=playerAt(G,tx,ty);
+      log(G,p.name+'が地面を破壊した。');
+      if(victim)log(G,victim.name+'の足場が崩れた！','warn');
+      break;
+    }
+    case 'repair':{
+      G.tiles[cellIndex(tx,ty)].hp=3;
+      log(G,'🔧 地面を耐久3で復活させた。','heal');
+      break;
+    }
+    case 'shield':{
+      var cc=fieldColorCounts(G,p.id);
+      var val=Math.max(0,2+cc.blue-cc.red*2);
+      p.shield=val;
+      log(G,'🛡️ シールド展開！ 次のダメージを'+val+'軽減（青'+cc.blue+'／赤'+cc.red+'）。','buff');
+      break;
+    }
+    case 'dash':{
+      p.dashBonus=(p.dashBonus||0)+3;
+      log(G,'💨 ダッシュ！ 次の移動距離+3。','buff');
+      break;
+    }
+    case 'charge':{
+      p.energy=Math.min(MAX_ENERGY,p.energy+2);
+      log(G,'⚡ エネルギー+2（◆'+p.energy+'）。','buff');
+      break;
+    }
+    case 'power':{
+      p.attackPower=(p.attackPower||0)+def.amount;
+      log(G,'🔫 攻撃力+'+def.amount+'！（現在 +'+p.attackPower+'）','buff');
+      break;
+    }
+    case 'wave':{
+      var f=fieldOf(p.x,p.y),cnt=0;
+      for(var yy=0;yy<W;yy++)for(var xx=0;xx<W;xx++){
+        if(fieldOf(xx,yy)!==f)continue;
+        var tt=G.tiles[cellIndex(xx,yy)];
+        if(tt&&tt.hp>0&&tt.color==='white'){tt.color='green';cnt++;}
+      }
+      log(G,'🌿 グリーンウェーブ！ 自陣の白マス'+cnt+'個が緑になった。','buff');
+      break;
+    }
+    case 'sukinukko':{
+      var f2=fieldOf(p.x,p.y),cands=[];
+      for(var y3=0;y3<W;y3++)for(var x3=0;x3<W;x3++){
+        if(fieldOf(x3,y3)!==f2)continue;
+        var t3=G.tiles[cellIndex(x3,y3)];
+        if(t3&&t3.hp>0&&t3.color==='white')cands.push(t3);
+      }
+      if(!cands.length){log(G,'🐱 変えられる白い地面がなかった。');break;}
+      pick(G.rng,cands).color=def.paintColor;
+      log(G,'🐱 '+def.name+'！ 自陣の白マスが1マス'+({green:'緑',yellow:'黄',blue:'青',red:'赤'}[def.paintColor])+'になった。');
+      break;
+    }
+    case 'paint':{
+      paintTile(G,tx,ty,def.paintColor);
+      log(G,'地面を'+({red:'赤',blue:'青',green:'緑',white:'白'}[def.paintColor]||'白')+'に塗った。');
+      break;
+    }
+    case 'snow':{
+      G.snowTurns=3;
+      log(G,'❄️ 島雪！ 3ターンの間、ターン終了ごとに全員のエネルギーが-1される。','warn');
+      break;
+    }
+    case 'reverse':{
+      log(G,'🔄 逆戻りを構えた。HPが0になると自動で復活する。','buff');
+      p.hand.push({id:'reverse',uid:Math.random().toString(36).slice(2,10),blocks:0});
+      break;
+    }
+    case 'umbrella':{
+      p.hand.push({id:'umbrella',uid:Math.random().toString(36).slice(2,10),blocks:0});
+      log(G,'☂️ 傘を構えた。飛んでくる攻撃を3回まで防ぐ。','buff');
+      break;
+    }
+    case 'luck':{
+      var roll; do{roll=1+ri(G.rng,10);}while(roll===7);
+      if(roll===9){
+        var foes2=G.players.filter(function(q){return q.alive&&q.id!==pid;});
+        if(foes2.length){
+          var t4=pick(G.rng,foes2);
+          var r4=applyDamage(G,t4,10,{ignoreShield:true,kind:'luck',reason:'運ゲー裁判に敗れた。'});
+          log(G,'⚖️ 運ゲー裁判：9！ '+t4.name+'に10ダメージ！','hit');
+        }else log(G,'⚖️ 運ゲー裁判：9！ しかし相手がいない。');
+      }else if(roll===1){
+        applyDamage(G,p,10,{ignoreShield:true,kind:'luck',reason:'運ゲー裁判で自爆した。'});
+        log(G,'⚖️ 運ゲー裁判：1！ 自分に10ダメージ…','hit');
+      }else{
+        log(G,'⚖️ 運ゲー裁判：'+roll+'。何も起きなかった。');
+      }
+      checkWin(G);
+      break;
+    }
+    case 'breakall':{
+      var cands=[];
+      for(var y4=0;y4<W;y4++)for(var x4=0;x4<W;x4++){
+        if(fieldOf(x4,y4)<0)continue;
+        if(G.tiles[cellIndex(x4,y4)].hp>0)cands.push([x4,y4]);
+      }
+      for(var s=cands.length-1;s>0;s--){var k=ri(G.rng,s+1);var tp=cands[s];cands[s]=cands[k];cands[k]=tp;}
+      var dest=cands.slice(0,5);
+      dest.forEach(function(d){
+        G.tiles[cellIndex(d[0],d[1])].hp=0;
+        var v=playerAt(G,d[0],d[1]);
+        if(v){log(G,v.name+'は足場ごと崩れ落ちた！','warn');killPlayer(G,v,'足場が崩壊した。');}
+        emit(G,{type:'crash',x:d[0],y:d[1]});
+      });
+      log(G,'🦊 破壊破壊破壊！ 全フィールドの'+dest.length+'マスが崩壊した。','warn');
+      checkWin(G);
+      break;
+    }
+    case 'ussr':{
+      p.soviet=true;
+      addToHand(G,p,makeCard('missile'));
+      if(p.hand.some(function(c){return c.id==='reverse';}))addToHand(G,p,makeCard('sovietrevive'));
+      log(G,'☭ ソ連！ ミサイルを手札に追加。赤い地面の上では攻撃力+3。','buff');
+      break;
+    }
+    case 'sovietrevive':{
+      var n2=1+ri(G.rng,10);
+      log(G,'☭ ソビエト復活！ '+n2+'発のミサイルが発射される！','warn');
+      for(var q=0;q<n2;q++){
+        (function(k2){
+          var foes3=G.players.filter(function(z){return z.alive&&z.id!==pid;});
+          if(!foes3.length)return;
+          var t5=pick(G.rng,foes3);
+          G.pending.push({kind:'missile',targetId:t5.id,damage:10+damageBonus(G,p),tx:t5.x,ty:t5.y,
+            fromX:p.x,fromY:p.y,resolveAt:G.now+1250+k2*1150,casterId:p.id});
+          emit(G,{type:'launch',kind:'missile',fromX:p.x,fromY:p.y,tx:t5.x,ty:t5.y,targetId:t5.id});
+        })(q);
+      }
+      break;
+    }
+    case 'steve':{
+      var hi=p.hand.findIndex(function(c){return c.id==='mysteryhead';});
+      if(hi>=0)p.hand.splice(hi,1);
+      addToHand(G,p,makeCard('glox'));
+      log(G,'⛏️ スティーブ！ 謎の頭から「グロックス」が現れた。','buff');
+      break;
+    }
+    case 'mystery':{
+      log(G,'💀 謎の頭……何も起きない。','info');
+      break;
+    }
+    default:{
+      log(G,'そのカードは今使えません。');
+      break;
+    }
+  }
+  void res;
+  return ok();
+}
+
+function endTurn(G,pid){
+  if(G.gameOver)return fail('ゲーム終了');
+  if(G.turnOrder[G.turnPos]!==pid)return fail('手番ではありません');
+  var p=G.players[pid];
+
+  var here=G.tiles[cellIndex(p.x,p.y)];
+  if(here&&here.color==='red'&&p.alive&&p.hp<MAX_HP){
+    healPlayer(G,p,1);
+    log(G,'赤い地面の効果で'+p.name+'のHPが1回復した。','heal');
+  }
+
+  if(G.round>=DEATH_ROUND){
+    if(!G.stormWarned){G.stormWarned=true;log(G,'⚠️ 大地が崩壊しはじめた！ ラウンド'+DEATH_ROUND+'以降、毎ターン終了時に全員が1ダメージを受ける。','warn');}
+    G.players.filter(function(q){return q.alive;}).forEach(function(q){
+      applyDamage(G,q,1,{ignoreShield:true,kind:'storm',reason:'崩壊する大地に呑まれた。'});
+      emit(G,{type:'hit',pid:q.id,dmg:1,blocked:0,ht:'storm'});
+    });
+    log(G,'⚠️ 崩壊ダメージ：全員が1ダメージを受けた。','warn');
+    checkWin(G);
+    if(G.gameOver)return ok();
+  }
+  if(G.snowTurns>0){
+    G.players.filter(function(q){return q.alive;}).forEach(function(q){
+      var um=q.hand.findIndex(function(c){return c.id==='umbrella';});
+      if(um>=0){
+        var u=q.hand[um]; u.blocks=(u.blocks||0)+1;
+        if(u.blocks>=3){q.hand.splice(um,1);log(G,q.name+'の傘が島雪を3回防いで消滅。','block');}
+      }else if(q.energy>0){
+        q.energy=Math.max(0,q.energy-1);
+      }else{
+        applyDamage(G,q,1,{ignoreShield:true,kind:'snow',reason:'島雪に凍え死んだ。'});
+        log(G,'❄️ '+q.name+'はエネルギー0で島雪のダメージを受けた。','hit');
+      }
+    });
+    G.snowTurns--;
+    if(G.snowTurns===0)log(G,'島雪の効果が終了した。');
+    checkWin(G);
+    if(G.gameOver){return ok();}
+  }
+
+  var guard=0;
+  do{
+    G.turnPos++;
+    if(G.turnPos>=G.turnOrder.length){G.turnPos=0;G.round++;G.players.forEach(function(q){q.draws=0;});}
+    guard++;
+  }while(guard<12&&!G.players[G.turnOrder[G.turnPos]].alive);
+
+  startTurn(G,current(G));
+  checkWin(G);
+  return ok();
+}
+
+function applyAction(G,pid,action){
+  if(!action||!action.kind)return fail('不正な操作');
+  switch(action.kind){
+    case 'move':return moveTo(G,pid,action.x,action.y);
+    case 'play':return playCard(G,pid,action.uid,action.x,action.y);
+    case 'draw':return drawAction(G,pid);
+    case 'endTurn':return endTurn(G,pid);
+    case 'surrender':{
+      var p=G.players[pid];
+      if(p&&p.alive){p.alive=false;p.hp=0;log(G,p.name+'は降参した。','death');checkWin(G);}
+      return ok();
+    }
+    default:return fail('不明な操作');
+  }
+}
+
+/* ---------- network view ---------- */
+function getView(G,viewerId){
+  return {
+    round:G.round,deathRound:DEATH_ROUND,turnPos:G.turnPos,turnOrder:G.turnOrder,
+    status:G.status,gameOver:G.gameOver,winner:G.winner,snowTurns:G.snowTurns,now:G.now,
+    tiles:G.tiles.map(function(t){return {hp:t.hp,color:t.color};}),
+    players:G.players.map(function(p){
+      return {id:p.id,name:p.name,icon:p.icon,cpu:p.cpu,x:p.x,y:p.y,hp:p.hp,maxHp:p.maxHp,lastMoveAt:p.lastMoveAt||0,
+        shield:p.shield,energy:p.energy,alive:p.alive,attackPower:p.attackPower,
+        dashBonus:p.dashBonus,moveUsed:p.moveUsed,soviet:p.soviet,handCount:p.hand.length,draws:p.draws,
+        moveReadyAt:(p.lastMoveAt||0)+MOVE_CD};
+    }),
+    hand:(G.players[viewerId]?G.players[viewerId].hand:[]).map(function(c){
+      return {id:c.id,uid:c.uid,blocks:c.blocks||0};
+    }),
+    pending:G.pending.map(function(pr){
+      return {kind:pr.kind,targetId:pr.targetId,tx:pr.tx,ty:pr.ty,fromX:pr.fromX,fromY:pr.fromY,damage:pr.damage};
+    }),
+    log:G.log.slice(-30)
+  };
+}
+
+var API={W:W,CARDS:CARDS,CARD_BY_ID:CARD_BY_ID,MAX_HAND:MAX_HAND,MAX_HP:MAX_HP,MAX_ENERGY:MAX_ENERGY,MOVE_CD:MOVE_CD,DEATH_ROUND:DEATH_ROUND,
+  fieldOf:fieldOf,cellIndex:cellIndex,CORNERS:CORNERS,createGame:createGame,applyAction:applyAction,
+  advance:advance,getView:getView,drainEvents:drainEvents,current:current,playerAt:playerAt,
+  randomCard:randomCard,makeCard:makeCard,addToHand:addToHand,healPlayer:healPlayer,damageBonus:damageBonus,
+  fieldColorCounts:fieldColorCounts,alivePlayers:alivePlayers,log:log};
+
+if(typeof module!=='undefined'&&module.exports)module.exports=API;
+else root.TERRA=API;
+})(typeof window!=='undefined'?window:globalThis);
+
+</script>
+<script>
+/* ===== TERRACARD ONLINE : app part 1 (state / lobby / network) ===== */
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id);};
+var T=window.TERRA;
+
+var S={
+  mode:null, name:'プレイヤー', icon:'🚀', myPid:0, code:'',
+  view:null, sel:null, conns:[], peer:null, mainConn:null,
+  game:null, connected:false, dirty:false, cpuAt:0
+};
+var ICONS=['🚀','🎤','🦊','🐼','🐸','👾','🐯','🦉','🐙','🤖','🧑‍🚀','🐧'];
+
+function toast(msg){
+  var t=$('toast'); if(!t)return;
+  t.textContent=msg; t.classList.add('on');
+  clearTimeout(t._h); t._h=setTimeout(function(){t.classList.remove('on');},2200);
+}
+function status(t,k){
+  var el=$('netStatus'); if(!el)return;
+  el.textContent=t; el.className='status '+(k||'');
+}
+function gstatus(t,k){
+  var el=$('gameStatus'); if(!el)return;
+  el.textContent=t; el.className='status '+(k||'');
+}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function code5(){
+  var s='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',o='';
+  for(var i=0;i<5;i++)o+=s[Math.floor(Math.random()*s.length)];
+  return o;
+}
+function showScreen(id){
+  ['lobby','game'].forEach(function(k){var e=$(k);if(e)e.classList.toggle('hidden',k!==id);});
+}
+
+function buildIconPicker(){
+  var el=$('iconPicker'); if(!el)return;
+  el.innerHTML='';
+  ICONS.forEach(function(ic){
+    var b=document.createElement('button');
+    b.type='button'; b.className='icon-btn'+(ic===S.icon?' on':''); b.textContent=ic;
+    b.onclick=function(){S.icon=ic;buildIconPicker();};
+    el.appendChild(b);
+  });
+}
+
+/* ---------- lobby ---------- */
+function renderHostLobby(){
+  var ul=$('joinedList'); if(!ul)return;
+  var rows=['<li><b>'+esc(S.name)+'</b> '+S.icon+' <span class="tag you">あなた（ホスト）</span></li>'];
+  S.conns.forEach(function(c){
+    rows.push('<li><b>'+esc(c.name||'接続中…')+'</b> '+(c.icon||'⏳')+' <span class="tag">ゲスト</span></li>');
+  });
+  ul.innerHTML=rows.join('');
+  var btn=$('startOnline');
+  if(btn){
+    var n=S.conns.length+1;
+    btn.disabled=n<2;
+    btn.textContent=n<2?('対戦相手を待っています…（'+n+'/2）'):('対戦を開始する（'+n+'人）');
+  }
+}
+function hostPanel(on){
+  var p=$('hostPanel'); if(p)p.classList.toggle('hidden',!on);
+  var b=$('codeBox'); if(b)b.classList.toggle('hidden',!on);
+}
+
+/* ---------- host ---------- */
+function createRoom(){
+  var nm=($('nameInput').value||'').trim();
+  S.name=(nm||'プレイヤー').slice(0,12);
+  S.mode='host'; S.code=code5(); S.conns=[]; S.game=null;
+  $('roomCodeText').textContent=S.code;
+  hostPanel(true); renderHostLobby();
+  status('シグナリングサーバーに接続中…','wait');
+  if(S.peer){try{S.peer.destroy();}catch(e){}}
+  if(!window.Peer){status('PeerJSを読み込めませんでした。通信環境を確認してください。','err');return;}
+  S.peer=new Peer('terracard-v1-'+S.code,{debug:0});
+  S.peer.on('open',function(){status('ルーム公開中。コード「'+S.code+'」を相手に送ってください。','ok');S.connected=true;});
+  S.peer.on('error',function(err){
+    var t=err&&err.type;
+    if(t==='unavailable-id')status('そのコードは使用中です。もう一度ルームを作ってください。','err');
+    else if(t==='peer-unavailable')status('相手が見つかりません。','err');
+    else if(t==='network'||t==='server-error'||t==='socket-error')status('サーバーに接続できません。時間をおいて再試行してください。','err');
+    else status('通信エラー: '+(t||'unknown'),'err');
+  });
+  S.peer.on('connection',function(conn){
+    if(S.game){
+      try{conn.on('open',function(){conn.send({t:'err',msg:'このルームは対戦中です。'});setTimeout(function(){conn.close();},400);});}catch(e){}
+      return;
+    }
+    conn.on('open',function(){
+      var entry={conn:conn,pid:null,name:null,icon:null};
+      S.conns.push(entry);
+      conn.on('data',function(d){onHostData(entry,d);});
+      conn.on('close',function(){
+        S.conns=S.conns.filter(function(c){return c!==entry;});
+        if(!S.game){renderHostLobby();}
+        else{gstatus('プレイヤーが切断しました。','err');}
+      });
+      renderHostLobby();
+    });
+  });
+}
+
+function broadcastLobby(){
+  if(S.mode!=='host')return;
+  var info={t:'lobby',host:{name:S.name,icon:S.icon},players:S.conns.map(function(c){return {name:c.name,icon:c.icon};})};
+  S.conns.forEach(function(c){try{if(c.conn&&c.conn.open)c.conn.send(info);}catch(e){}});
+}
+
+function onHostData(entry,d){
+  if(!d||!d.t)return;
+  if(d.t==='hello'){
+    entry.name=(d.name||'ゲスト').slice(0,12);
+    entry.icon=d.icon||'🦊';
+    renderHostLobby(); broadcastLobby();
+    return;
+  }
+  if(d.t==='act'){
+    if(!S.game)return;
+    var r=T.applyAction(S.game,entry.pid,d.a);
+    if(!r.ok)try{entry.conn.send({t:'toast',msg:r.msg});}catch(e){}
+    pushState(T.drainEvents(S.game));
+    return;
+  }
+  if(d.t==='bye'){
+    if(S.game&&S.game.players[entry.pid]&&S.game.players[entry.pid].alive){
+      T.applyAction(S.game,entry.pid,{kind:'surrender'});
+      pushState(T.drainEvents(S.game));
+    }
+  }
+}
+
+function hostStart(){
+  if(S.mode!=='host'||S.conns.length<1){toast('対戦相手の参加を待っています');return;}
+  var players=[{name:S.name,icon:S.icon}];
+  S.conns.forEach(function(c){c.pid=players.length;players.push({name:c.name||'ゲスト',icon:c.icon||'🦊'});});
+  players=players.slice(0,4);
+  S.game=T.createGame({seed:Date.now(),players:players});
+  S.myPid=0;
+  showScreen('game');
+  S.conns.forEach(function(c){
+    try{c.conn&&c.conn.open&&c.conn.send({t:'start',pid:c.pid,players:players});}catch(e){}
+  });
+  pushState([]);
+  startHostLoop();
+}
+
+var hostTimer=null;
+function startHostLoop(){
+  if(hostTimer)clearInterval(hostTimer);
+  hostTimer=setInterval(function(){
+    if(!S.game)return;
+    var ev=[];
+    if(T.advance(S.game,Date.now()))ev=T.drainEvents(S.game);
+    if(ev.length||S.dirty)pushState(ev);
+    S.dirty=false;
+  },140);
+}
+function pushState(ev){
+  if(!S.game)return;
+  S.view=T.getView(S.game,0);
+  window.renderGame(S.view,ev||[]);
+  S.conns.forEach(function(c){
+    if(!c.conn||!c.conn.open||c.pid===null||c.pid===undefined)return;
+    try{c.conn.send({t:'state',v:T.getView(S.game,c.pid),ev:ev||[]});}catch(e){}
+  });
+}
+
+/* ---------- guest ---------- */
+function joinRoom(){
+  var nm=($('nameInput').value||'').trim();
+  S.name=(nm||'プレイヤー').slice(0,12);
+  var code=($('joinCode').value||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(code.length<4){status('ルームコードを入力してください。','err');return;}
+  S.mode='guest'; S.code=code; S.game=null;
+  status('ルーム「'+code+'」に接続中…','wait');
+  if(!window.Peer){status('PeerJSを読み込めませんでした。通信環境を確認してください。','err');return;}
+  if(S.peer){try{S.peer.destroy();}catch(e){}}
+  S.peer=new Peer({debug:0});
+  S.peer.on('open',function(){
+    var conn=S.peer.connect('terracard-v1-'+code,{reliable:true});
+    S.mainConn=conn;
+    var timer=setTimeout(function(){
+      if(!S.connected)status('接続できませんでした。コードとホストの状態を確認してください。','err');
+    },15000);
+    conn.on('open',function(){
+      clearTimeout(timer); S.connected=true;
+      status('接続しました。ホストの開始を待っています…','ok');
+      try{conn.send({t:'hello',name:S.name,icon:S.icon});}catch(e){}
+    });
+    conn.on('data',function(d){onGuestData(d);});
+    conn.on('close',function(){
+      S.connected=false;
+      status('ホストとの接続が切れました。','err');
+      if(S.game)gstatus('接続が切れました。','err');
+    });
+  });
+  S.peer.on('error',function(err){
+    var t=err&&err.type;
+    if(t==='peer-unavailable')status('そのコードのルームが見つかりません。コードを確認してください。','err');
+    else if(t==='network'||t==='server-error')status('サーバーに接続できません。時間をおいて再試行してください。','err');
+    else status('通信エラー: '+(t||'unknown'),'err');
+  });
+}
+
+function onGuestData(d){
+  if(!d||!d.t)return;
+  if(d.t==='lobby'){
+    if(S.game)return;
+    var n=(d.players||[]).length+1;
+    status('ホスト「'+(d.host?d.host.name:'')+'」のルームに接続（'+n+'人）。開始を待っています…','ok');
+    return;
+  }
+  if(d.t==='start'){
+    S.myPid=d.pid; S.playersList=d.players;
+    showScreen('game');
+    gstatus('対戦開始！','ok');
+    return;
+  }
+  if(d.t==='state'){
+    S.view=d.v;
+    window.renderGame(d.v,d.ev||[]);
+    return;
+  }
+  if(d.t==='toast'||d.t==='err'){toast(d.msg||'');return;}
+}
+
+/* ---------- local / cpu ---------- */
+function startLocal(useCpu){
+  S.mode=useCpu?'cpu':'local';
+  var nm=($('nameInput').value||'').trim();
+  S.name=(nm||'プレイヤー').slice(0,12);
+  var players;
+  if(useCpu)players=[{name:S.name,icon:S.icon},{name:'CPU',icon:'🤖',cpu:true,diff:'normal'}];
+  else players=[{name:S.name,icon:S.icon},{name:'プレイヤー2',icon:'🦊'}];
+  S.game=T.createGame({seed:Date.now(),players:players});
+  S.myPid=0;
+  showScreen('game');
+  startLocalLoop();
+}
+function viewPid(G){
+  if(S.mode==='local')return T.current(G).id;
+  return 0;
+}
+var localTimer=null;
+function startLocalLoop(){
+  if(localTimer)clearInterval(localTimer);
+  localTimer=setInterval(function(){
+    if(!S.game)return;
+    var G=S.game, ev=[];
+    if(T.advance(G,Date.now()))ev=T.drainEvents(G);
+    if(S.mode==='cpu')cpuThink();
+    if(ev.length||S.dirty){
+      S.view=T.getView(G,viewPid(G));
+      window.renderGame(S.view,ev);
+    }
+    S.dirty=false;
+  },140);
+}
+function cpuThink(){
+  var G=S.game;
+  if(!G||G.gameOver)return;
+  var p=T.current(G);
+  if(!p||!p.cpu||!p.alive)return;
+  if(Date.now()-S.cpuAt<850)return;
+  S.cpuAt=Date.now();
+  var hand=p.hand.slice();
+  for(var i=0;i<hand.length;i++){
+    var c=hand[i], d=T.CARD_BY_ID[c.id];
+    if(!d||p.energy<d.cost)continue;
+    if(d.type==='mystery'||d.type==='umbrella'||d.type==='reverse')continue;
+    var act=null;
+    if(d.type==='attack'){
+      var foes=G.players.filter(function(q){return q.alive&&q.id!==p.id;});
+      if(foes.length){var f=foes[0];act={kind:'play',uid:c.uid,x:f.x,y:f.y};}
+    }else if(d.type==='break'||d.type==='paint'){
+      var cands=[];
+      for(var y=0;y<11;y++)for(var x=0;x<11;x++){
+        if(T.fieldOf(x,y)!==T.fieldOf(p.x,p.y))continue;
+        if(G.tiles[T.cellIndex(x,y)].hp>0)cands.push([x,y]);
+      }
+      if(cands.length){var cc=cands[Math.floor(Math.random()*cands.length)];act={kind:'play',uid:c.uid,x:cc[0],y:cc[1]};}
+    }else if(d.type==='repair'){
+      for(var y2=0;y2<11;y2++)for(var x2=0;x2<11;x2++){
+        if(T.fieldOf(x2,y2)!==T.fieldOf(p.x,p.y))continue;
+        if(G.tiles[T.cellIndex(x2,y2)].hp<=0)act={kind:'play',uid:c.uid,x:x2,y:y2};
+      }
+    }else{
+      act={kind:'play',uid:c.uid};
+    }
+    if(act&&T.applyAction(G,p.id,act).ok){T.drainEvents(G);S.dirty=true;return;}
+  }
+  var opts=[];
+  for(var y3=0;y3<11;y3++)for(var x3=0;x3<11;x3++){
+    if(T.fieldOf(x3,y3)!==T.fieldOf(p.x,p.y))continue;
+    if(T.playerAt(G,x3,y3))continue;
+    if(G.tiles[T.cellIndex(x3,y3)].hp<=0)continue;
+    if(Math.abs(x3-p.x)+Math.abs(y3-p.y)<=G.moveRange+3)opts.push([x3,y3]);
+  }
+  if(opts.length&&Math.random()<0.6){
+    var o=opts[Math.floor(Math.random()*opts.length)];
+    if(T.applyAction(G,p.id,{kind:'move',x:o[0],y:o[1]}).ok){T.drainEvents(G);S.dirty=true;return;}
+  }
+  if(p.energy>=3&&p.hand.length<T.MAX_HAND)T.applyAction(G,p.id,{kind:'draw'});
+  T.applyAction(G,p.id,{kind:'endTurn'});
+  T.drainEvents(G);
+  S.dirty=true;
+}
+
+/* ---------- actions ---------- */
+function act(a){
+  if(S.mode==='guest'){
+    if(S.mainConn&&S.mainConn.open){try{S.mainConn.send({t:'act',a:a});}catch(e){toast('通信エラー');}}
+    else toast('接続が切れています');
+    return;
+  }
+  if(!S.game)return;
+  var pid=S.mode==='local'?T.current(S.game).id:0;
+  var r=T.applyAction(S.game,pid,a);
+  if(!r.ok)toast(r.msg);
+  var ev=T.drainEvents(S.game);
+  if(S.mode==='host'){pushState(ev);return;}
+  S.view=T.getView(S.game,viewPid(S.game));
+  window.renderGame(S.view,ev);
+}
+
+window.TC={
+  createRoom:createRoom, joinRoom:joinRoom, startOnline:hostStart,
+  startLocal:function(){startLocal(false);},
+  startCpu:function(){startLocal(true);},
+  act:act, toast:toast,
+  getSel:function(){return S.sel;},
+  setSel:function(u){S.sel=u;},
+  backToLobby:function(){
+    if(hostTimer)clearInterval(hostTimer);
+    if(localTimer)clearInterval(localTimer);
+    if(S.mode==='guest'&&S.mainConn){try{S.mainConn.send({t:'bye'});}catch(e){}}
+    if(S.peer){try{S.peer.destroy();}catch(e){}S.peer=null;}
+    S.mainConn=null; S.conns=[]; S.game=null; S.view=null; S.sel=null; S.connected=false; S.mode=null;
+    hostPanel(false);
+    var r=$('resultModal'); if(r){r.classList.add('hidden');r.dataset.shown='0';}
+    buildIconPicker(); showScreen('lobby');
+    status('未接続','');
+  },
+  copyCode:function(){
+    var txt=S.code;
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(function(){toast('コード「'+txt+'」をコピーしました');},function(){toast('コード: '+txt);});
+    }else toast('コード: '+txt);
+  },
+  S:S
+};
+
+document.addEventListener('DOMContentLoaded',function(){
+  buildIconPicker();
+  $('createRoom').onclick=createRoom;
+  $('joinRoom').onclick=joinRoom;
+  $('joinPanelBtn').onclick=function(){var i=$('joinCode');if(i){i.focus();i.scrollIntoView({block:'center'});}};
+  $('startOnline').onclick=hostStart;
+  $('localBtn').onclick=function(){startLocal(false);};
+  $('cpuBtn').onclick=function(){startLocal(true);};
+});
+})();
+
+</script>
+<script>
+/* ===== TERRACARD ONLINE : app part 2 (rendering) ===== */
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id);};
+var T=window.TERRA;
+var S=window.TC.S;
+
+var COLOR={white:'#ffffff',red:'#e95b63',blue:'#459cf0',green:'#45bd78',yellow:'#f5d84e'};
+var NEED_TARGET={attack:1,paint:1,break:1,repair:1};
+var HINT_BY_TYPE={
+  attack:'攻撃する相手のコマをクリック',
+  paint:'色を変えたい地面をクリック',
+  break:'壊したい地面をクリック（全フィールド可）',
+  repair:'自分のフィールドの壊れたマスをクリック'
+};
+
+function meIdOf(v){
+  if(S.mode==='guest')return S.myPid;
+  if(S.mode==='host')return 0;
+  return v.turnOrder[v.turnPos];
+}
+function myTurn(v){return v.turnOrder[v.turnPos]===meIdOf(v);}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+/* ---------- pawn / projectile layers ---------- */
+function ensurePawn(id){
+  var layer=$('pawnLayer');
+  var el=layer.querySelector('[data-p="'+id+'"]');
+  if(!el){
+    el=document.createElement('div');
+    el.className='pawn';
+    el.dataset.p=id;
+    el.innerHTML='<div class="body"><span class="ic"></span><div class="hpm"><i></i></div></div>';
+    layer.appendChild(el);
+  }
+  return el;
+}
+function placePawnEl(el,x,y){
+  el.style.left=(x*(100/11))+'%';
+  el.style.top=(y*(100/11))+'%';
+}
+
+var projSeen={};
+function syncProjectiles(v){
+  var layer=$('projLayer');
+  if(!layer)return;
+  var live={};
+  (v.pending||[]).forEach(function(pr){
+    var key=pr.kind+'_'+pr.targetId+'_'+pr.tx+'_'+pr.ty+'_'+(pr.fromX)+'_'+(pr.fromY);
+    var tag=key+'|'+Math.round((pr.damage||0));
+    live[tag]=1;
+    if(layer.querySelector('[data-k="'+tag+'"]'))return;
+    var el=document.createElement('div');
+    el.className='proj';
+    el.dataset.k=tag;
+    el.textContent=pr.kind==='missile'?'🚀':pr.kind==='beam'?'✨':'🔥';
+    placePawnEl(el,pr.fromX,pr.fromY);
+    layer.appendChild(el);
+    requestAnimationFrame(function(){requestAnimationFrame(function(){
+      if(!el.isConnected)return;
+      placePawnEl(el,pr.tx,pr.ty);
+      el.style.transform='scale(1.25)';
+    });});
+    setTimeout(function(){el.style.opacity='0';setTimeout(function(){el.remove();},260);},1250);
+  });
+  Array.prototype.forEach.call(layer.children,function(el){
+    if(!live[el.dataset.k]&&!el._dying){el._dying=1;setTimeout(function(){el.remove();},600);}
+  });
+}
+
+/* ---------- board ---------- */
+var lastBoardKey='';
+function renderBoard(v){
+  var board=$('board');
+  if(!board)return;
+  var me=v.players.find(function(p){return p.id===meIdOf(v);})||v.players[0];
+  var sel=S.sel?v.hand.find(function(c){return c.uid===S.sel;}):null;
+  var selDef=sel?T.CARD_BY_ID[sel.id]:null;
+  var moveRange=5+(me.dashBonus||0);
+  var canMove=myTurn(v)&&!v.gameOver;
+
+  var key=v.tiles.map(function(t){return t.hp+t.color[0];}).join('')+'|'+(me.x)+','+(me.y)+'|'+(sel?sel.id:'')+'|'+(canMove?1:0);
+  if(key===lastBoardKey)return;
+  lastBoardKey=key;
+
+  board.innerHTML='';
+  for(var y=0;y<11;y++){
+    for(var x=0;x<11;x++){
+      var b=document.createElement('button');
+      b.type='button';
+      b.dataset.x=x; b.dataset.y=y;
+      var f=T.fieldOf(x,y);
+      var t=v.tiles[T.cellIndex(x,y)];
+      if(f<0){
+        b.className='cell wall';
+        b.disabled=true;
+        board.appendChild(b);
+        continue;
+      }
+      b.className='cell t'+f;
+      if(y===0||T.fieldOf(x,y-1)!==f)b.classList.add('edge-top');
+      if(y===10||T.fieldOf(x,y+1)!==f)b.classList.add('edge-bottom');
+      if(x===0||T.fieldOf(x-1,y)!==f)b.classList.add('edge-left');
+      if(x===10||T.fieldOf(x+1,y)!==f)b.classList.add('edge-right');
+      if(t.hp<=0){
+        b.classList.add('broken');
+        b.title='('+(x+1)+','+(y+1)+') 崩落した地面';
+      }else{
+        b.style.background=COLOR[t.color]||'#ffffff';
+        b.title='('+(x+1)+','+(y+1)+') 耐久 '+t.hp;
+        var d=document.createElement('span');
+        d.className='dura';
+        d.textContent=t.hp;
+        b.appendChild(d);
+      }
+      var occ=v.players.some(function(p){return p.alive&&p.x===x&&p.y===y;});
+      if(selDef&&NEED_TARGET[selDef.type]&&!occ){
+        var valid=false;
+        if(selDef.type==='paint')valid=t.hp>0;
+        else if(selDef.type==='break')valid=t.hp>0;
+        else if(selDef.type==='repair')valid=t.hp<=0&&T.fieldOf(x,y)===T.fieldOf(me.x,me.y);
+        if(valid)b.classList.add('targetable');
+      }
+      if(selDef&&selDef.type==='attack'&&occ&&!v.players.some(function(p){return p.alive&&p.x===x&&p.y===y&&p.id===meIdOf(v);})){
+        b.classList.add('targetable');
+      }
+      if(canMove&&!occ&&t.hp>0&&f===T.fieldOf(me.x,me.y)&&Math.abs(x-me.x)+Math.abs(y-me.y)<=moveRange&&(x!==me.x||y!==me.y)){
+        b.classList.add('moveable');
+      }
+      if(selDef)b.classList.add('aim');
+      b.addEventListener('click',function(ev){
+        var cx=+ev.currentTarget.dataset.x, cy=+ev.currentTarget.dataset.y;
+        onCell(cx,cy);
+      });
+      board.appendChild(b);
+    }
+  }
+}
+
+function onCell(x,y){
+  var v=S.view;
+  if(!v||v.gameOver)return;
+  if(!myTurn(v)){toast('いまは自分の手番ではありません');return;}
+  var me=v.players.find(function(p){return p.id===meIdOf(v);});
+  var occ=v.players.find(function(p){return p.alive&&p.x===x&&p.y===y;});
+  var t=v.tiles[T.cellIndex(x,y)];
+
+  if(S.sel){
+    var card=v.hand.find(function(c){return c.uid===S.sel;});
+    var def=card?T.CARD_BY_ID[card.id]:null;
+    if(!def||!NEED_TARGET[def.type]){S.sel=null;}
+    else{
+      if(def.type==='attack'){ if(!occ||occ.id===me.id){toast('攻撃する相手を選んでください');return;} }
+      if(def.type==='paint'){ if(T.fieldOf(x,y)<0||t.hp<=0){toast('そのマスは塗れません');return;} }
+      if(def.type==='break'){ if(T.fieldOf(x,y)<0||t.hp<=0){toast('そのマスは壊せません');return;} }
+      if(def.type==='repair'){ if(T.fieldOf(x,y)!==T.fieldOf(me.x,me.y)||t.hp>0){toast('自分のフィールドの壊れたマスを選んでください');return;} }
+      var uid=S.sel; S.sel=null;
+      send({kind:'play',uid:uid,x:x,y:y});
+      return;
+    }
+  }
+
+  if(occ){toast('そのマスには誰かがいます');return;}
+  if(t.hp<=0){toast('足場が崩れているので移動できません');return;}
+  if(T.fieldOf(x,y)!==T.fieldOf(me.x,me.y)){toast('自分のフィールドから外へは移動できません');return;}
+  send({kind:'move',x:x,y:y});
+}
+
+function send(a){
+  if(window.TC&&window.TC.act)window.TC.act(a);
+}
+
+/* ---------- hand ---------- */
+var lastHandKey='';
+function renderHand(v){
+  var el=$('hand');
+  if(!el)return;
+  var me=v.players.find(function(p){return p.id===meIdOf(v);})||v.players[0];
+  var key=v.hand.map(function(c){return c.uid+c.blocks;}).join(',')+'|'+me.energy+'|'+(myTurn(v)?1:0)+'|'+(S.sel||'')+'|'+v.gameOver;
+  if(key===lastHandKey)return;
+  lastHandKey=key;
+  el.innerHTML='';
+  if(!v.hand.length){el.innerHTML='<div class="hintbar">手札がありません。「カードを引く」で補充できます。</div>';return;}
+  v.hand.forEach(function(c){
+    var d=T.CARD_BY_ID[c.id];
+    if(!d)return;
+    var b=document.createElement('button');
+    b.type='button';
+    b.className='hcard'+(S.sel===c.uid?' sel':'')+((me.energy<d.cost||!myTurn(v))?' poor':'');
+    b.innerHTML='<span class="cst">'+d.cost+'</span>'+
+      '<span class="ic">'+d.icon+'</span>'+
+      '<span class="cn">'+esc(d.name)+(c.blocks?' ☂'+c.blocks+'/3':'')+'</span>'+
+      '<span class="cd">'+esc(d.desc)+'</span>';
+    b.addEventListener('click',function(){
+      if(!myTurn(v)){toast('いまは自分の手番ではありません');return;}
+      if(me.energy<d.cost){toast('エネルギーが足りません');return;}
+      if(NEED_TARGET[d.type]){
+        S.sel=(S.sel===c.uid)?null:c.uid;
+        lastHandKey='';lastBoardKey='';
+        renderGame(v,[]);
+        if(S.sel)toast(HINT_BY_TYPE[d.type]);
+      }else{
+        S.sel=null;
+        send({kind:'play',uid:c.uid});
+      }
+    });
+    el.appendChild(b);
+  });
+  var hc=$('handCount');
+  if(hc)hc.textContent='('+v.hand.length+'/'+T.MAX_HAND+')';
+}
+
+/* ---------- players / log / status ---------- */
+function renderPlayers(v){
+  var el=$('plist');
+  if(!el)return;
+  var cur=v.turnOrder[v.turnPos];
+  el.innerHTML=v.players.map(function(p){
+    var pct=Math.max(0,Math.min(100,p.hp/p.maxHp*100));
+    var tags=[];
+    if(p.id===meIdOf(v))tags.push('<span class="seatTag">あなた</span>');
+    if(p.cpu)tags.push('<span class="seatTag">CPU</span>');
+    if(p.shield>0)tags.push('<span class="seatTag">🛡'+p.shield+'</span>');
+    if(p.soviet)tags.push('<span class="seatTag">☭</span>');
+    return '<div class="pcard'+(cur===p.id?' active':'')+(p.alive?'':' dead')+'">'+
+      '<div class="ic">'+p.icon+'</div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div class="nm">'+esc(p.name)+' '+tags.join(' ')+'</div>'+
+        '<div class="meta">HP '+p.hp+'/'+p.maxHp+' · ◆'+p.energy+' · 🃏'+p.handCount+(p.attackPower?' · ⚔+'+p.attackPower:'')+'</div>'+
+        '<div class="hpbar'+(pct<35?' low':'')+'"><i style="width:'+pct+'%"></i></div>'+
+      '</div></div>';
+  }).join('');
+}
+
+var lastLogLen=-1;
+function renderLog(v){
+  var el=$('logbox');
+  if(!el)return;
+  var log=v.log||[];
+  var tail=log.length?log[log.length-1].t:'';
+  if(log.length===lastLogLen&&el.dataset.round===String(v.round)&&el.dataset.tail===tail)return;
+  el.dataset.tail=tail;
+  lastLogLen=log.length;
+  el.dataset.round=v.round;
+  el.innerHTML=log.map(function(l){
+    return '<div class="l '+(l.kind||'')+'">'+esc(l.t)+'</div>';
+  }).join('');
+  el.scrollTop=el.scrollHeight;
+}
+
+function renderTurn(v){
+  var cur=v.players.find(function(p){return p.id===v.turnOrder[v.turnPos];});
+  var me=v.players.find(function(p){return p.id===meIdOf(v);})||v.players[0];
+  var ti=$('turnInfo');
+  if(ti){
+    var mine=myTurn(v);
+    ti.innerHTML='<b>'+(cur?esc(cur.name):'―')+'</b> の手番 '+
+      (mine?'<span style="color:#6ee7a8">（あなたの番）</span>':'<span style="color:#ffb35c">（待機中）</span>')+
+      '<br><span style="font-weight:700;color:#a8cde3">'+esc(v.status||'')+'</span>';
+  }
+  var en=$('energyNum');
+  if(en)en.textContent=me.energy;
+  var pips=$('pips');
+  if(pips){
+    var h='';
+    for(var i=0;i<T.MAX_ENERGY;i++)h+='<span class="pip'+(i<me.energy?' on':'')+'"></span>';
+    pips.innerHTML=h;
+  }
+  var db=$('drawBtn'), eb=$('endTurnBtn');
+  if(db){
+    db.disabled=!myTurn(v)||v.gameOver||me.handCount>=T.MAX_HAND||(me.draws>0&&me.energy<1);
+    db.textContent=me.draws>0?'カードを引く（◆1）':'カードを引く（無料）';
+  }
+  if(eb)eb.disabled=!myTurn(v)||v.gameOver;
+  var ah=$('actionHint');
+  if(ah){
+    if(v.gameOver)ah.textContent='対戦は終了しました。';
+    else if(!myTurn(v))ah.textContent='相手の操作を待っています。移動は自分の手番で行えます。';
+    else if(v.round>=v.deathRound)ah.innerHTML='⚠️ 崩壊中：ターン終了ごとに全員1ダメージ。決着をつけよう。';
+    else if(v.snowTurns>0)ah.innerHTML='❄️ 島雪が'+v.snowTurns+'ターン残っています。ターン終了時にエネルギー-1。';
+    else ah.textContent='カードを選ぶと対象マスが光ります。移動はクールダウンごとに何度でも可能。';
+  }
+  var rn=$('roundNum');
+  if(rn)rn.textContent=v.round;
+  var cp=$('connPill'), ct=$('connText');
+  if(cp&&ct){
+    var online=(S.mode==='host'||S.mode==='guest');
+    cp.className='pill'+(online?' online':' off');
+    ct.textContent=online?('オンライン · '+S.code):(S.mode==='cpu'?'CPU対戦':'ローカル対戦');
+  }
+}
+
+/* ---------- main ---------- */
+window.renderGame=function(v,events){
+  if(!v)return;
+  S.view=v;
+  renderBoard(v);
+  renderHand(v);
+  renderPlayers(v);
+  renderLog(v);
+  renderTurn(v);
+
+  var cur=v.turnOrder[v.turnPos];
+  v.players.forEach(function(p){
+    var el=ensurePawn(p.id);
+    el.classList.toggle('me',p.id===meIdOf(v));
+    el.classList.toggle('foe',p.id!==meIdOf(v));
+    el.style.display=p.alive?'grid':'none';
+    placePawnEl(el,p.x,p.y);
+    var ic=el.querySelector('.ic');
+    if(ic)ic.textContent=p.icon;
+    var bar=el.querySelector('.hpm i');
+    if(bar)bar.style.width=Math.max(0,p.hp/p.maxHp*100)+'%';
+    el.dataset.hp=p.hp;
+  });
+  Array.prototype.forEach.call($('pawnLayer').children,function(el){
+    if(!v.players.some(function(p){return String(p.id)===el.dataset.p;}))el.remove();
+  });
+  var active=ensurePawn(cur);
+  active.style.zIndex=9;
+
+  syncProjectiles(v);
+
+  (events||[]).forEach(function(e){
+    if(e.type==='hit'){
+      var el=$('pawnLayer').querySelector('[data-p="'+e.pid+'"]');
+      if(el){
+        el.animate([
+          {filter:'brightness(2.2) saturate(.4)',transform:'translateY(-6px)'},
+          {filter:'brightness(1)',transform:'translateY(0)'}
+        ],{duration:420,easing:'ease-out'});
+      }
+    }
+  });
+
+  if(v.gameOver){
+    showResult(v);
+  }
+};
+window.refreshSelection=function(){
+  if(S.view){lastBoardKey='';lastHandKey='';renderGame(S.view,[]);}
+};
+
+function showResult(v){
+  var m=$('resultModal');
+  if(!m)return;
+  if(m.dataset.shown==='1'&&!m.classList.contains('hidden'))return;
+  m.dataset.shown='1';
+  var me=meIdOf(v);
+  var win=v.winner===me;
+  var winner=v.players.find(function(p){return p.id===v.winner;});
+  m.innerHTML='<div class="box" style="border-color:'+(win?'#ffd166':'#8ab9d9')+'">'+
+    '<div class="big">'+(win?'🏆':'💫')+'</div>'+
+    '<h2 style="color:'+(win?'#ffe08a':'#c9e8ff')+'">'+(win?'勝利！':'敗北…')+'</h2>'+
+    '<p style="color:#cdeaff;font-weight:700;margin:6px 0 18px">'+
+      (winner?esc(winner.name)+' の勝ち':'引き分け')+'</p>'+
+    '<div class="row tight" style="justify-content:center">'+
+      '<button class="btn" id="resAgain">もう一度</button>'+
+      '<button class="btn ghost" id="resLobby">ロビーへ</button>'+
+    '</div></div>';
+  m.classList.remove('hidden');
+  $('resAgain').onclick=function(){m.classList.add('hidden');m.dataset.shown='0';window.TC.backToLobby();};
+  $('resLobby').onclick=function(){m.classList.add('hidden');m.dataset.shown='0';window.TC.backToLobby();};
+}
+
+function toast(msg){
+  var t=$('toast');
+  if(!t)return;
+  t.textContent=msg;
+  t.classList.add('on');
+  clearTimeout(t._h);
+  t._h=setTimeout(function(){t.classList.remove('on');},2200);
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  var d=$('drawBtn');
+  if(d)d.onclick=function(){
+    if(!S.view)return;
+    if(!myTurn(S.view)){toast('いまは自分の手番ではありません');return;}
+    send({kind:'draw'});
+  };
+  var e=$('endTurnBtn');
+  if(e)e.onclick=function(){
+    if(!S.view)return;
+    if(!myTurn(S.view)){toast('いまは自分の手番ではありません');return;}
+    S.sel=null;
+    send({kind:'endTurn'});
+  };
+  var x=$('exitBtn');
+  if(x)x.onclick=function(){
+    if(confirm('対戦から退出してロビーに戻りますか？'))window.TC.backToLobby();
+  };
+  var c=$('copyCode');
+  if(c)c.onclick=function(){window.TC.copyCode();};
+});
+})();
+
+</script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
+</body>
+</html>
